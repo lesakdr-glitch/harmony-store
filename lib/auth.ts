@@ -105,7 +105,7 @@ export async function getUserById(userId: string) {
 
 // Обновление профиля
 export async function updateUserProfile(
-  userId: string, 
+  userId: string,
   updates: { name?: string; phone?: string; address?: string }
 ) {
   const { data, error } = await supabase
@@ -117,4 +117,25 @@ export async function updateUserProfile(
 
   if (error) throw new Error('Ошибка при обновлении профиля');
   return data;
+}
+
+// Admin функции
+export async function verifyAdminPassword(password: string): Promise<boolean> {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    throw new Error('ADMIN_PASSWORD not configured');
+  }
+  return password === adminPassword;
+}
+
+export async function isAdminAuthenticated(session?: any): Promise<boolean> {
+  return session?.isAdmin === true || session?.user?.role === 'admin';
+}
+
+export async function requireAdmin(session?: any) {
+  const isAdmin = await isAdminAuthenticated(session);
+  if (!isAdmin) {
+    return { error: 'Требуются права администратора', status: 401 };
+  }
+  return null;
 }

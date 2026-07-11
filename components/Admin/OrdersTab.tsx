@@ -52,7 +52,7 @@ export default function OrdersTab({ user }: { user?: any }) {
     processing: orders.filter(o => o.status === 'В обработке').length,
     shipped: orders.filter(o => o.status === 'Отправлен').length,
     today: orders.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString()).length,
-    sum: orders.reduce((acc, o) => acc + o.price, 0),
+    sum: orders.reduce((acc, o) => acc + (o.total_price || 0), 0),
   };
 
   if (loading) {
@@ -124,14 +124,16 @@ export default function OrdersTab({ user }: { user?: any }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-secondary/10">
-              {filteredOrders.map((order) => (
+              {filteredOrders.map((order) => {
+                const firstItem = order.items?.[0];
+                return (
                 <tr key={order.id} className="hover:bg-card/50">
-                  <td className="px-4 py-3 text-sm text-text">{order.name}</td>
-                  <td className="px-4 py-3 text-sm text-text">{order.phone}</td>
-                  <td className="px-4 py-3 text-sm text-text">{order.city}</td>
-                  <td className="px-4 py-3 text-sm text-text">{order.delivery}</td>
-                  <td className="px-4 py-3 text-sm text-text">{order.product_name}</td>
-                  <td className="px-4 py-3 text-sm font-medium text-success">{formatPrice(order.price)}₽</td>
+                  <td className="px-4 py-3 text-sm text-text">{firstItem?.name || '-'}</td>
+                  <td className="px-4 py-3 text-sm text-text">{firstItem?.phone || '-'}</td>
+                  <td className="px-4 py-3 text-sm text-text">{firstItem?.city || '-'}</td>
+                  <td className="px-4 py-3 text-sm text-text">{order.delivery_method === 'sdek' ? 'СДЭК' : 'Самовывоз'}</td>
+                  <td className="px-4 py-3 text-sm text-text">{firstItem?.name || '-'}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-success">{formatPrice(order.total_price || 0)}₽</td>
                   <td className="px-4 py-3">
                     <select
                       value={order.status}
@@ -160,7 +162,8 @@ export default function OrdersTab({ user }: { user?: any }) {
                     {new Date(order.created_at).toLocaleDateString('ru-RU')}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

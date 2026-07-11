@@ -4,6 +4,7 @@ import { User } from './supabase';
 
 export interface SessionData {
   user?: User;
+  isAdmin?: boolean;
   cart?: Array<{
     product_id: string;
     name: string;
@@ -28,6 +29,13 @@ export async function getSession() {
   const cookieStore = await cookies();
   const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
   return session;
+}
+
+export async function createSession(user: User) {
+  const cookieStore = await cookies();
+  const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
+  session.user = user;
+  await session.save();
 }
 
 export async function saveSession(session: any) {

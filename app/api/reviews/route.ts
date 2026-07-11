@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { isAdminAuthenticated, requireAdmin } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSession } from '@/lib/session';
 
 export async function GET() {
   try {
-    const isAdmin = await isAdminAuthenticated();
+    const session = await getSession();
+    const isAdmin = await isAdminAuthenticated(session);
 
     let query = supabaseAdmin.from('reviews').select('*').order('created_at', { ascending: false });
 
@@ -29,8 +31,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const authError = await requireAdmin();
-  if (authError) return authError;
+  const session = await getSession();
+  const authError = await requireAdmin(session);
+  if (authError) return NextResponse.json(authError, { status: authError.status });
 
   try {
     const body = await request.json();
@@ -61,8 +64,9 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const authError = await requireAdmin();
-  if (authError) return authError;
+  const session = await getSession();
+  const authError = await requireAdmin(session);
+  if (authError) return NextResponse.json(authError, { status: authError.status });
 
   try {
     const body = await request.json();
@@ -95,8 +99,9 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const authError = await requireAdmin();
-  if (authError) return authError;
+  const session = await getSession();
+  const authError = await requireAdmin(session);
+  if (authError) return NextResponse.json(authError, { status: authError.status });
 
   try {
     const { searchParams } = new URL(request.url);
