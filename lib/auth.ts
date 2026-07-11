@@ -57,6 +57,7 @@ export async function loginUser(email: string, password: string) {
     throw new Error('Неверный email или пароль');
   }
 
+  // Убираем хеш пароля из ответа
   const { password_hash, ...userData } = user;
   return userData;
 }
@@ -116,33 +117,4 @@ export async function updateUserProfile(
 
   if (error) throw new Error('Ошибка при обновлении профиля');
   return data;
-}
-
-// Проверка пароля админа
-export async function verifyAdminPassword(password: string): Promise<boolean> {
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) {
-    console.error('ADMIN_PASSWORD not set in .env');
-    return false;
-  }
-  return password === adminPassword;
-}
-
-// Проверка авторизации админа
-export async function isAdminAuthenticated(request: Request): Promise<boolean> {
-  try {
-    const { getSession } = await import('@/lib/session');
-    const session = await getSession();
-    return session?.user?.role === 'admin' || session?.user?.role === 'seller';
-  } catch {
-    return false;
-  }
-}
-
-// Middleware для админ API
-export async function requireAdmin(request: Request): Promise<void> {
-  const isAuth = await isAdminAuthenticated(request);
-  if (!isAuth) {
-    throw new Error('Unauthorized');
-  }
 }

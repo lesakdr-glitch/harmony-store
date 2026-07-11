@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Review } from '@/lib/supabase';
 import { Star, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
 
-export default function ReviewsTab() {
+export default function ReviewsTab({ user }: { user?: any }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

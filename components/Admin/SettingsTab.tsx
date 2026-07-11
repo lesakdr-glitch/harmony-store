@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Settings } from '@/lib/supabase';
 
-export default function SettingsTab() {
+export default function SettingsTab({ user }: { user?: any }) {
   const [settings, setSettings] = useState<Partial<Settings>>({
     whatsapp_number: '',
     telegram_chat_id: '',

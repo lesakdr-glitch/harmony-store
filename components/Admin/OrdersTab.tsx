@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Order } from '@/lib/supabase';
 import { formatPrice } from '@/lib/utils';
 
-export default function OrdersTab() {
+export default function OrdersTab({ user }: { user?: any }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');

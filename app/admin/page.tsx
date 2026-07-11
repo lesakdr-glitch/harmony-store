@@ -9,15 +9,24 @@ import ReviewsTab from '@/components/Admin/ReviewsTab';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'reviews' | 'settings'>('orders');
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/admin/session', { credentials: 'include' })
+    // Проверяем авторизацию через session API
+    fetch('/api/auth/session', { credentials: 'include' })
       .then((res) => res.json())
-      .then((data) => setIsAuthenticated(data.authenticated === true))
+      .then((data) => {
+        if (data.user && (data.user.role === 'admin' || data.user.role === 'seller')) {
+          setIsAuthenticated(true);
+          setUser(data.user);
+        } else {
+          setIsAuthenticated(false);
+        }
+      })
       .catch(() => setIsAuthenticated(false))
       .finally(() => setLoading(false));
   }, []);
@@ -132,10 +141,10 @@ export default function AdminPage() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {activeTab === 'orders' && <OrdersTab />}
-        {activeTab === 'products' && <ProductsTab />}
-        {activeTab === 'reviews' && <ReviewsTab />}
-        {activeTab === 'settings' && <SettingsTab />}
+        {activeTab === 'orders' && <OrdersTab user={user} />}
+        {activeTab === 'products' && <ProductsTab user={user} />}
+        {activeTab === 'reviews' && <ReviewsTab user={user} />}
+        {activeTab === 'settings' && <SettingsTab user={user} />}
       </div>
     </div>
   );
