@@ -1,88 +1,85 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/lib/session';
+import { isAdminAuthenticated, requireAdmin } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function GET() {
   try {
-    const { data: reviews, error } = await supabaseAdmin
-      .from('reviews')
-      .select(`
-        id,
-        text,
-        stars,
-        created_at,
-        active,
-        user:users(name),
-        product:products(name, slug)
-      `)
-      .eq('active', true)
-      .order('created_at', { ascending: false });
+    const isAdmin = await isAdminAuthenticated();
 
+    let query = supabaseAdmin.from('reviews').select('*').order('created_at', { ascending: false });
+
+    if (!isAdmin) {
+      query = query.eq('active', true);
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
 
-    return NextResponse.json({ reviews: reviews || [] });
-  } catch (error) {
-    console.error('Error fetching reviews:', error);
+    const normalized = (data || []).map((review) => ({
+      ...review,
+      rating: review.stars || review.rating || 5,
+    }));
+
+    return NextResponse.json(normalized);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[Reviews] Error fetching reviews:', message);
     return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   try {
-    const session = await getSession();
-    
-    if (!session.user) {
-      return NextResponse.json({ error: 'Необходима авторизация' }, { status: 401 });
-    }
+    const body = await request.json();
 
-    const { product_id, text, stars } = await request.json();
-
-    if (!product_id || !text || !stars) {
-      return NextResponse.json(
-        { error: 'Не все поля заполнены' },
-        { status: 400 }
-      );
-    }
+    const reviewData = {
+      name: body.name,
+      city: body.city,
+      text: body.text,
+      stars: body.rating || body.stars || 5,
+      avatar_url: body.avatar_url,
+      active: body.active ?? true,
+    };
 
     const { data, error } = await supabaseAdmin
       .from('reviews')
-      .insert([
-        {
-          user_id: session.user.id,
-          product_id,
-          text,
-          stars,
-          active: true,
-        },
-      ])
+      .insert([reviewData])
       .select()
       .single();
 
     if (error) throw error;
 
     return NextResponse.json({ success: true, review: data });
-  } catch (error: any) {
-    console.error('Error creating review:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to create review' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[Reviews] Error creating review:', message);
+    return NextResponse.json({ error: 'Failed to create review' }, { status: 500 });
   }
 }
 
-export async function PUT(request: Request) {
+export async function PATCH(request: Request) {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   try {
-    const session = await getSession();
-    
-    if (!session.user || session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'Только админ' }, { status: 403 });
+    const body = await request.json();
+    const { id, rating, ...rest } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Review ID is required' }, { status: 400 });
     }
 
-    const { id, active } = await request.json();
+    const updateData = {
+      ...rest,
+      ...(rating !== undefined && { stars: rating }),
+    };
 
     const { data, error } = await supabaseAdmin
       .from('reviews')
-      .update({ active })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
@@ -90,38 +87,32 @@ export async function PUT(request: Request) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, review: data });
-  } catch (error: any) {
-    console.error('Error updating review:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to update review' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[Reviews] Error updating review:', message);
+    return NextResponse.json({ error: 'Failed to update review' }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   try {
-    const session = await getSession();
-    
-    if (!session.user || session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'Только админ' }, { status: 403 });
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Review ID is required' }, { status: 400 });
     }
 
-    const { id } = await request.json();
-
-    const { error } = await supabaseAdmin
-      .from('reviews')
-      .delete()
-      .eq('id', id);
-
+    const { error } = await supabaseAdmin.from('reviews').delete().eq('id', id);
     if (error) throw error;
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Error deleting review:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to delete review' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[Reviews] Error deleting review:', message);
+    return NextResponse.json({ error: 'Failed to delete review' }, { status: 500 });
   }
 }

@@ -68,6 +68,13 @@ export interface Order {
   track_number: string | null;
   seller_id: string | null;
   created_at: string;
+  // Additional fields for admin view (stored in items or delivery_address)
+  name?: string;
+  phone?: string;
+  city?: string;
+  delivery?: string;
+  product_name?: string;
+  price?: number;
 }
 
 export interface Review {
