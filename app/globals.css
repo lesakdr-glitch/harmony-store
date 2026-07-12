@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FAF7F2;
+  --card: #FFFFFF;
+  --accent-brown: #8B7355;
+  --accent-olive: #6B8E4E;
+  --text-primary: #2D2D2D;
+  --text-secondary: #5D5D5D;
+}
+
+.dark {
+  --background: #1a1a1a;
+  --card: #2d2d2d;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a0a0a0;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Плавные переходы */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Кастомный скроллбар */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-brown);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-olive);
+}
