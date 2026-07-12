@@ -1,6 +1,24 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+interface Settings {
+  contact_phone?: string;
+  contact_email?: string;
+  inn_ogrn?: string;
+}
 
 export default function Footer() {
+  const [settings, setSettings] = useState<Settings>({});
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => setSettings(data))
+      .catch(() => {});
+  }, []);
+
   return (
     <footer className="bg-card border-t border-gray-200 dark:border-gray-800 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -13,12 +31,8 @@ export default function Footer() {
             <p className="text-text-secondary text-sm mb-4">
               Продукция Vilavi для митохондриального здоровья
             </p>
-            {/* Соцсети */}
             <div className="flex space-x-4">
-              <a href="#" className="text-2xl hover:scale-110 transition-transform">📱</a>
-              <a href="#" className="text-2xl hover:scale-110 transition-transform">💬</a>
-              <a href="#" className="text-2xl hover:scale-110 transition-transform">📸</a>
-              <a href="#" className="text-2xl hover:scale-110 transition-transform">🐦</a>
+              <span className="text-2xl">🌿</span>
             </div>
           </div>
 
@@ -41,11 +55,6 @@ export default function Footer() {
                   Личный кабинет
                 </Link>
               </li>
-              <li>
-                <Link href="/login" className="hover:text-accent-olive transition-colors">
-                  Войти
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -53,16 +62,6 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Информация</h4>
             <ul className="space-y-2 text-sm text-text-secondary">
-              <li>
-                <Link href="/privacy" className="hover:text-accent-olive transition-colors">
-                  Политика конфиденциальности
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="hover:text-accent-olive transition-colors">
-                  Условия использования
-                </Link>
-              </li>
               <li>
                 <Link href="/about" className="hover:text-accent-olive transition-colors">
                   О нас
@@ -78,6 +77,16 @@ export default function Footer() {
                   Возврат товара
                 </Link>
               </li>
+              <li>
+                <Link href="/privacy" className="hover:text-accent-olive transition-colors">
+                  Политика конфиденциальности
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-accent-olive transition-colors">
+                  Условия использования
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -85,17 +94,32 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Контакты</h4>
             <ul className="space-y-2 text-sm text-text-secondary">
-              <li>📧 support@harmonystore.ru</li>
-              <li>📱 +7 (999) 123-45-67</li>
-              <li>📍 Москва, ул. Примерная, 123</li>
-              <li>🕐 Пн-Пт: 9:00 - 18:00</li>
+              {settings.contact_phone && (
+                <li>
+                  <a href={`tel:${settings.contact_phone}`} className="hover:text-accent-olive transition-colors">
+                    📱 {settings.contact_phone}
+                  </a>
+                </li>
+              )}
+              {settings.contact_email && (
+                <li>
+                  <a href={`mailto:${settings.contact_email}`} className="hover:text-accent-olive transition-colors">
+                    📧 {settings.contact_email}
+                  </a>
+                </li>
+              )}
+              {!settings.contact_phone && !settings.contact_email && (
+                <li className="text-text-secondary">Контакты не указаны</li>
+              )}
             </ul>
           </div>
         </div>
 
         <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8 text-center text-sm text-text-secondary">
           <p>© {new Date().getFullYear()} Harmony Store. Все права защищены.</p>
-          <p className="mt-2">ИНН 1234567890 | ОГРН 1234567890123</p>
+          {settings.inn_ogrn && (
+            <p className="mt-2">{settings.inn_ogrn}</p>
+          )}
         </div>
       </div>
     </footer>

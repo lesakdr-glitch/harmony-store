@@ -5,14 +5,14 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FloatingSupport from '@/components/FloatingSupport';
 
-export default function Privacy() {
+export default function Delivery() {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => setText(data.privacy_text || ''))
+      .then(data => setText(data.delivery_text || ''))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -22,7 +22,7 @@ export default function Privacy() {
       <Navbar />
       <main className="flex-grow py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="font-raleway text-5xl font-bold text-accent-brown mb-10">Политика конфиденциальности</h1>
+          <h1 className="font-raleway text-5xl font-bold text-accent-brown mb-10">Доставка и оплата</h1>
           <div className="bg-white rounded-3xl shadow-sm p-10">
             {loading ? (
               <p className="text-text-secondary text-lg">Загрузка...</p>

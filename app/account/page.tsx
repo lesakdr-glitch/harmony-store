@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import FloatingSupport from '@/components/FloatingSupport';
 import ProductCard from '@/components/ProductCard';
 import Dashboard from '@/components/Dashboard';
+import SettingsPanel from '@/components/SettingsPanel';
 import { formatPrice } from '@/lib/utils';
 
 export default function Account() {
@@ -100,14 +101,24 @@ export default function Account() {
             {/* Вкладки */}
             <aside className="md:w-64 space-y-2">
               {user.role === 'admin' && (
-                <button
-                  onClick={() => setActiveTab('admin')}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
-                    activeTab === 'admin' ? 'bg-accent-olive text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  Админ-панель
-                </button>
+                <>
+                  <button
+                    onClick={() => setActiveTab('admin')}
+                    className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
+                      activeTab === 'admin' ? 'bg-accent-olive text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    Админ-панель
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('settings')}
+                    className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
+                      activeTab === 'settings' ? 'bg-accent-olive text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    Настройки
+                  </button>
+                </>
               )}
               <button
                 onClick={() => setActiveTab('profile')}
@@ -150,6 +161,10 @@ export default function Account() {
                 <div>
                   <Dashboard />
                 </div>
+              )}
+
+              {activeTab === 'settings' && user.role === 'admin' && (
+                <SettingsPanel />
               )}
 
               {activeTab === 'profile' && (

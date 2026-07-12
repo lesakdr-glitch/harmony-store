@@ -96,9 +96,14 @@ CREATE TABLE settings (
   hero_title TEXT,
   hero_subtitle TEXT,
   about_text TEXT,
+  delivery_text TEXT,
+  return_text TEXT,
   privacy_text TEXT,
   terms_text TEXT,
-  whatsapp_number TEXT
+  whatsapp_number TEXT,
+  contact_phone TEXT,
+  contact_email TEXT,
+  inn_ogrn TEXT
 );
 
 -- Индексы для оптимизации

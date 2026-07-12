@@ -2,36 +2,40 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [isDark, setIsDark] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Загрузка количества товаров в корзине из localStorage
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     setCartCount(cart.reduce((sum: number, item: any) => sum + item.quantity, 0));
 
-    // Проверка авторизации
     const user = localStorage.getItem('user');
     setIsAuthenticated(!!user);
 
-    // Проверка темы
     const darkMode = localStorage.getItem('darkMode') === 'true';
     setIsDark(darkMode);
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    }
+    if (darkMode) document.documentElement.classList.add('dark');
 
-    // Скролл для прозрачности
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    // Обновлять корзину при изменении storage
+    const handleStorage = () => {
+      const updatedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      setCartCount(updatedCart.reduce((sum: number, item: any) => sum + item.quantity, 0));
+      setIsAuthenticated(!!localStorage.getItem('user'));
+    };
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -52,7 +56,7 @@ export default function Navbar() {
             Harmony Store
           </Link>
 
-          {/* Навигация */}
+          {/* Навигация desktop */}
           <div className="hidden md:flex items-center space-x-8">
             <Link href="/catalog" className="text-text-secondary hover:text-accent-olive transition-colors">
               Каталог
@@ -61,18 +65,24 @@ export default function Navbar() {
               Отследить заказ
             </Link>
             {isAuthenticated ? (
-              <Link href="/account" className="text-text-secondary hover:text-accent-olive transition-colors">
+              <Link
+                href="/account"
+                className="text-text-secondary hover:text-accent-olive transition-colors"
+              >
                 Личный кабинет
               </Link>
             ) : (
-              <Link href="/login" className="text-text-secondary hover:text-accent-olive transition-colors">
+              <Link
+                href="/login"
+                className="bg-accent-olive text-white px-4 py-2 rounded-xl hover:bg-opacity-90 transition-colors text-sm font-medium"
+              >
                 Войти
               </Link>
             )}
           </div>
 
           {/* Правая часть */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -89,8 +99,58 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+
+            {/* Мобильное меню */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Меню"
+            >
+              <div className="space-y-1">
+                <span className="block w-5 h-0.5 bg-text-primary"></span>
+                <span className="block w-5 h-0.5 bg-text-primary"></span>
+                <span className="block w-5 h-0.5 bg-text-primary"></span>
+              </div>
+            </button>
           </div>
         </div>
+
+        {/* Мобильное меню dropdown */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-gray-100 dark:border-gray-800 py-4 space-y-3">
+            <Link
+              href="/catalog"
+              onClick={() => setMenuOpen(false)}
+              className="block px-2 py-2 text-text-secondary hover:text-accent-olive transition-colors"
+            >
+              Каталог
+            </Link>
+            <Link
+              href="/track"
+              onClick={() => setMenuOpen(false)}
+              className="block px-2 py-2 text-text-secondary hover:text-accent-olive transition-colors"
+            >
+              Отследить заказ
+            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/account"
+                onClick={() => setMenuOpen(false)}
+                className="block px-2 py-2 text-text-secondary hover:text-accent-olive transition-colors"
+              >
+                Личный кабинет
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="block px-2 py-2 text-accent-olive font-medium"
+              >
+                Войти
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

@@ -12,33 +12,28 @@ export default function Terms() {
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
-        setText(data.terms_text || '');
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+      .then(data => setText(data.terms_text || ''))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#FAF7F2' }}>
       <Navbar />
-      
       <main className="flex-grow py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="font-raleway text-3xl font-bold text-text-primary mb-8">
-            Условия использования
-          </h1>
-
-          <div className="bg-card p-8 rounded-2xl shadow-sm">
-            <div className="prose prose-lg max-w-none text-text-secondary whitespace-pre-wrap">
-              {loading ? 'Загрузка...' : text || 'Текст скоро появится'}
-            </div>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="font-raleway text-5xl font-bold text-accent-brown mb-10">Условия использования</h1>
+          <div className="bg-white rounded-3xl shadow-sm p-10">
+            {loading ? (
+              <p className="text-text-secondary text-lg">Загрузка...</p>
+            ) : (
+              <p className="text-text-secondary text-lg leading-relaxed whitespace-pre-wrap font-inter">
+                {text || 'Скоро появится'}
+              </p>
+            )}
           </div>
         </div>
       </main>
-
       <Footer />
       <FloatingSupport />
     </div>
