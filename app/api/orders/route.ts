@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { verifyAdminPassword } from '@/lib/auth';
+import { isAdmin } from '@/lib/auth';
 import { sendTelegramNotification, formatOrderMessage } from '@/lib/telegram';
 
 // POST - публичный доступ для создания заказа
@@ -50,8 +50,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Для админов - все заказы
-    const adminPassword = request.headers.get('x-admin-password');
-    if (!verifyAdminPassword(adminPassword || '')) {
+    const userHeader = request.headers.get('x-user-id');
+    const userRole = request.headers.get('x-user-role');
+    
+    if (!isAdmin({ id: userHeader, role: userRole })) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -73,8 +75,10 @@ export async function GET(request: NextRequest) {
 // PATCH - только для админов
 export async function PATCH(request: NextRequest) {
   try {
-    const adminPassword = request.headers.get('x-admin-password');
-    if (!verifyAdminPassword(adminPassword || '')) {
+    const userHeader = request.headers.get('x-user-id');
+    const userRole = request.headers.get('x-user-role');
+    
+    if (!isAdmin({ id: userHeader, role: userRole })) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

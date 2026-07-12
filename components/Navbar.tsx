@@ -7,11 +7,17 @@ import { motion } from 'framer-motion';
 export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [isDark, setIsDark] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     // Загрузка количества товаров в корзине из localStorage
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     setCartCount(cart.reduce((sum: number, item: any) => sum + item.quantity, 0));
+
+    // Проверка авторизации
+    const user = localStorage.getItem('user');
+    setIsAuthenticated(!!user);
 
     // Проверка темы
     const darkMode = localStorage.getItem('darkMode') === 'true';
@@ -19,6 +25,13 @@ export default function Navbar() {
     if (darkMode) {
       document.documentElement.classList.add('dark');
     }
+
+    // Скролл для прозрачности
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const toggleTheme = () => {
@@ -29,7 +42,9 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-card shadow-sm">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+      scrolled ? 'bg-card/95 backdrop-blur-md shadow-sm' : 'bg-card/80 backdrop-blur-sm'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Логотип */}
@@ -45,9 +60,15 @@ export default function Navbar() {
             <Link href="/track" className="text-text-secondary hover:text-accent-olive transition-colors">
               Отследить заказ
             </Link>
-            <Link href="/account" className="text-text-secondary hover:text-accent-olive transition-colors">
-              Личный кабинет
-            </Link>
+            {isAuthenticated ? (
+              <Link href="/account" className="text-text-secondary hover:text-accent-olive transition-colors">
+                Личный кабинет
+              </Link>
+            ) : (
+              <Link href="/login" className="text-text-secondary hover:text-accent-olive transition-colors">
+                Войти
+              </Link>
+            )}
           </div>
 
           {/* Правая часть */}

@@ -63,7 +63,7 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
   return (
     <motion.div
       whileHover={{ y: -8 }}
-      className="bg-card rounded-2xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden"
+      className="bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
     >
       <Link href={`/product/${product.slug}`}>
         {/* Изображение */}
@@ -71,7 +71,7 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
           <img
             src={product.image_url}
             alt={product.name}
-            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+            className="w-full h-full object-cover hover:scale-110 transition-transform duration-500 ease-out"
           />
           
           {/* Бейдж */}
@@ -130,7 +130,7 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
 
             <button
               onClick={addToCart}
-              className="bg-accent-olive text-white px-4 py-2 rounded-xl hover:bg-opacity-90 transition-colors text-sm"
+              className="bg-accent-olive text-white px-4 py-2 rounded-[30px] hover:bg-opacity-90 transition-all hover:scale-105 text-sm"
             >
               В корзину
             </button>

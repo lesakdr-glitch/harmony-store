@@ -19,15 +19,25 @@ export default function Home() {
       .then(data => setSettings(data))
       .catch(console.error);
 
-    // Счётчик продаж (рандом или из localStorage)
-    const stored = localStorage.getItem('sold_today');
-    if (stored) {
-      setSoldToday(parseInt(stored));
-    } else {
-      const random = Math.floor(Math.random() * 11) + 5; // 5-15
-      setSoldToday(random);
-      localStorage.setItem('sold_today', String(random));
-    }
+    // Реальный счётчик продаж из Supabase
+    fetch('/api/admin/dashboard')
+      .then(res => res.json())
+      .then(data => {
+        if (data.ordersToday !== undefined) {
+          setSoldToday(data.ordersToday);
+        }
+      })
+      .catch(() => {
+        // Fallback если API недоступен
+        const stored = localStorage.getItem('sold_today');
+        if (stored) {
+          setSoldToday(parseInt(stored));
+        } else {
+          const random = Math.floor(Math.random() * 11) + 5;
+          setSoldToday(random);
+          localStorage.setItem('sold_today', String(random));
+        }
+      });
   }, []);
 
   return (

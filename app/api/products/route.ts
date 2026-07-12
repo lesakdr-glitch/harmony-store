@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { verifyAdminPassword } from '@/lib/auth';
+import { isAdmin } from '@/lib/auth';
 
 // GET - публичный доступ
 export async function GET(request: NextRequest) {
@@ -75,8 +75,10 @@ export async function GET(request: NextRequest) {
 // POST - только для админов
 export async function POST(request: NextRequest) {
   try {
-    const adminPassword = request.headers.get('x-admin-password');
-    if (!verifyAdminPassword(adminPassword || '')) {
+    const userHeader = request.headers.get('x-user-id');
+    const userRole = request.headers.get('x-user-role');
+    
+    if (!isAdmin({ id: userHeader, role: userRole })) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -100,8 +102,10 @@ export async function POST(request: NextRequest) {
 // PATCH - только для админов
 export async function PATCH(request: NextRequest) {
   try {
-    const adminPassword = request.headers.get('x-admin-password');
-    if (!verifyAdminPassword(adminPassword || '')) {
+    const userHeader = request.headers.get('x-user-id');
+    const userRole = request.headers.get('x-user-role');
+    
+    if (!isAdmin({ id: userHeader, role: userRole })) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -128,8 +132,10 @@ export async function PATCH(request: NextRequest) {
 // DELETE - только для админов
 export async function DELETE(request: NextRequest) {
   try {
-    const adminPassword = request.headers.get('x-admin-password');
-    if (!verifyAdminPassword(adminPassword || '')) {
+    const userHeader = request.headers.get('x-user-id');
+    const userRole = request.headers.get('x-user-role');
+    
+    if (!isAdmin({ id: userHeader, role: userRole })) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

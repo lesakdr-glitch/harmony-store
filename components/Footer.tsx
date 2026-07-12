@@ -10,9 +10,16 @@ export default function Footer() {
             <h3 className="font-raleway text-xl font-bold text-accent-brown mb-4">
               Harmony Store
             </h3>
-            <p className="text-text-secondary text-sm">
+            <p className="text-text-secondary text-sm mb-4">
               Продукция Vilavi для митохондриального здоровья
             </p>
+            {/* Соцсети */}
+            <div className="flex space-x-4">
+              <a href="#" className="text-2xl hover:scale-110 transition-transform">📱</a>
+              <a href="#" className="text-2xl hover:scale-110 transition-transform">💬</a>
+              <a href="#" className="text-2xl hover:scale-110 transition-transform">📸</a>
+              <a href="#" className="text-2xl hover:scale-110 transition-transform">🐦</a>
+            </div>
           </div>
 
           {/* Навигация */}
@@ -34,6 +41,11 @@ export default function Footer() {
                   Личный кабинет
                 </Link>
               </li>
+              <li>
+                <Link href="/login" className="hover:text-accent-olive transition-colors">
+                  Войти
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -51,6 +63,21 @@ export default function Footer() {
                   Условия использования
                 </Link>
               </li>
+              <li>
+                <Link href="/about" className="hover:text-accent-olive transition-colors">
+                  О нас
+                </Link>
+              </li>
+              <li>
+                <Link href="/delivery" className="hover:text-accent-olive transition-colors">
+                  Доставка и оплата
+                </Link>
+              </li>
+              <li>
+                <Link href="/returns" className="hover:text-accent-olive transition-colors">
+                  Возврат товара
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -60,12 +87,15 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-text-secondary">
               <li>📧 support@harmonystore.ru</li>
               <li>📱 +7 (999) 123-45-67</li>
+              <li>📍 Москва, ул. Примерная, 123</li>
+              <li>🕐 Пн-Пт: 9:00 - 18:00</li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8 text-center text-sm text-text-secondary">
-          © {new Date().getFullYear()} Harmony Store. Все права защищены.
+          <p>© {new Date().getFullYear()} Harmony Store. Все права защищены.</p>
+          <p className="mt-2">ИНН 1234567890 | ОГРН 1234567890123</p>
         </div>
       </div>
     </footer>

@@ -15,13 +15,16 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const adminPassword = localStorage.getItem('admin_auth');
-      if (!adminPassword) return;
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.id || user.role !== 'admin') return;
 
       try {
         // Статистика
         const statsRes = await fetch('/api/admin/dashboard', {
-          headers: { 'x-admin-password': adminPassword },
+          headers: { 
+            'x-user-id': user.id,
+            'x-user-role': user.role
+          },
         });
         const statsData = await statsRes.json();
         if (statsData) {
@@ -47,7 +50,7 @@ export default function Dashboard() {
         </div>
         <div className="bg-card p-6 rounded-2xl shadow-sm">
           <h3 className="text-text-secondary text-sm mb-2">Выручка сегодня</h3>
-          <p className="text-3xl font-bold text-accent-olive">{stats.revenueToday.toLocaleString()} ₽</p>
+          <p className="text-3xl font-bold text-accent-olive">{stats.revenueToday ? stats.revenueToday.toLocaleString() : 0} ₽</p>
         </div>
         <div className="bg-card p-6 rounded-2xl shadow-sm">
           <h3 className="text-text-secondary text-sm mb-2">Всего заказов</h3>
@@ -96,13 +99,13 @@ export default function Dashboard() {
                 <tr key={order.id} className="border-b border-gray-200 dark:border-gray-700">
                   <td className="py-3 px-4">{order.customer_name}</td>
                   <td className="py-3 px-4">{order.customer_phone}</td>
-                  <td className="py-3 px-4">{order.total_price.toLocaleString()} ₽</td>
+                  <td className="py-3 px-4">{order.total_price ? order.total_price.toLocaleString() : 0} ₽</td>
                   <td className="py-3 px-4">
                     <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
                       {order.status}
                     </span>
                   </td>
-                  <td className="py-3 px-4">{new Date(order.created_at).toLocaleDateString('ru-RU')}</td>
+                  <td className="py-3 px-4">{order.created_at ? new Date(order.created_at).toLocaleDateString('ru-RU') : '-'}</td>
                 </tr>
               ))}
             </tbody>

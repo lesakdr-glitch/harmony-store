@@ -22,22 +22,25 @@ export default function Hero({ title, subtitle }: HeroProps) {
   }, []);
 
   return (
-    <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Параллакс фон */}
+    <section className="relative h-[700px] flex items-center justify-center overflow-hidden">
+      {/* Градиентный фон */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#F5E6D3] via-[#FAF7F2] to-[#E8D5C4]" />
+      
+      {/* Параллакс эффект */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-accent-olive/20 to-accent-brown/20"
+        className="absolute inset-0 bg-gradient-to-br from-accent-olive/10 to-accent-brown/10"
         style={{
           y: scrollY * 0.3,
         }}
       />
 
       {/* Контент */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto py-20">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="font-raleway text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6"
+          className="font-raleway text-5xl md:text-6xl lg:text-[48px] font-bold text-text-primary mb-8 leading-tight"
         >
           {title}
         </motion.h1>
@@ -46,7 +49,7 @@ export default function Hero({ title, subtitle }: HeroProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-xl text-text-secondary mb-8"
+          className="text-xl md:text-2xl text-text-secondary mb-12 max-w-2xl mx-auto"
         >
           {subtitle}
         </motion.p>
@@ -58,7 +61,7 @@ export default function Hero({ title, subtitle }: HeroProps) {
         >
           <Link
             href="/catalog"
-            className="inline-block bg-accent-olive text-white px-8 py-4 rounded-2xl font-semibold hover:bg-opacity-90 transition-all hover:scale-105"
+            className="inline-block bg-accent-olive text-white px-10 py-4 rounded-[30px] font-semibold hover:bg-opacity-90 transition-all hover:scale-105 shadow-lg hover:shadow-xl"
           >
             В каталог
           </Link>

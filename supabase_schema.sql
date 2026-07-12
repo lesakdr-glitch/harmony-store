@@ -120,3 +120,11 @@ INSERT INTO settings (hero_title, hero_subtitle, about_text) VALUES (
   'БАДы, концентраты, масла, витаминные комплексы и клетчатка для вашего здоровья',
   'Vilavi — это премиальная продукция для митохондриального здоровья. Наши продукты созданы с использованием новейших научных исследований и натуральных ингредиентов для поддержки вашего организма на клеточном уровне.'
 ) ON CONFLICT (id) DO NOTHING;
+
+-- Создание админа (пароль: V9kL3mR7xP2qN5wY8cB1)
+INSERT INTO users (email, password_hash, name, role) VALUES (
+  'admin@harmonystore.ru',
+  '$2a$10$LOU3Xm0o1vcAXDn7kVd0lOxtHji2gogWFrj/cTOWWy3X1xnpYxbJS',
+  'Admin',
+  'admin'
+) ON CONFLICT (email) DO NOTHING;

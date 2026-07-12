@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { verifyAdminPassword } from '@/lib/auth';
+import { isAdmin } from '@/lib/auth';
 
 // GET - публичный доступ (без токенов)
 export async function GET() {
@@ -26,8 +26,10 @@ export async function GET() {
 // PATCH - только для админов
 export async function PATCH(request: NextRequest) {
   try {
-    const adminPassword = request.headers.get('x-admin-password');
-    if (!verifyAdminPassword(adminPassword || '')) {
+    const userHeader = request.headers.get('x-user-id');
+    const userRole = request.headers.get('x-user-role');
+    
+    if (!isAdmin({ id: userHeader, role: userRole })) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

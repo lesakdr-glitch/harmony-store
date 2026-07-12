@@ -10,7 +10,13 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return bcrypt.compare(password, hash);
 }
 
-// Проверка админ-пароля (для простой админки)
+// Проверка админ-прав по роли пользователя
+export function isAdmin(user: any): boolean {
+  return user && user.role === 'admin';
+}
+
+// Проверка админ-пароля (для простой админки) - deprecated
 export function verifyAdminPassword(password: string): boolean {
-  return password === process.env.ADMIN_PASSWORD;
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  return password === adminPassword;
 }

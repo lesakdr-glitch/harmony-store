@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FloatingSupport from '@/components/FloatingSupport';
 import ProductCard from '@/components/ProductCard';
+import Dashboard from '@/components/Dashboard';
 import { formatPrice } from '@/lib/utils';
 
 export default function Account() {
@@ -27,10 +28,16 @@ export default function Account() {
       router.push('/login');
       return;
     }
-    setUser(JSON.parse(savedUser));
-    setProfileData(JSON.parse(savedUser));
+    const parsedUser = JSON.parse(savedUser);
+    setUser(parsedUser);
+    setProfileData(parsedUser);
     loadOrders();
     loadFavorites();
+    
+    // Если пользователь админ, показываем дашборд по умолчанию
+    if (parsedUser.role === 'admin') {
+      setActiveTab('admin');
+    }
   }, [router]);
 
   const loadOrders = async () => {
@@ -92,6 +99,16 @@ export default function Account() {
           <div className="flex flex-col md:flex-row gap-8">
             {/* Вкладки */}
             <aside className="md:w-64 space-y-2">
+              {user.role === 'admin' && (
+                <button
+                  onClick={() => setActiveTab('admin')}
+                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
+                    activeTab === 'admin' ? 'bg-accent-olive text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  Админ-панель
+                </button>
+              )}
               <button
                 onClick={() => setActiveTab('profile')}
                 className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
@@ -129,6 +146,12 @@ export default function Account() {
 
             {/* Контент */}
             <div className="flex-1">
+              {activeTab === 'admin' && user.role === 'admin' && (
+                <div>
+                  <Dashboard />
+                </div>
+              )}
+
               {activeTab === 'profile' && (
                 <div className="bg-card p-6 rounded-2xl shadow-sm space-y-4">
                   <h2 className="font-semibold text-xl mb-4">Профиль</h2>

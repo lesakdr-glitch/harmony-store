@@ -7,12 +7,18 @@ import FloatingSupport from '@/components/FloatingSupport';
 
 export default function Terms() {
   const [text, setText] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => setText(data.terms_text || ''))
-      .catch(console.error);
+      .then(data => {
+        setText(data.terms_text || '');
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -27,7 +33,7 @@ export default function Terms() {
 
           <div className="bg-card p-8 rounded-2xl shadow-sm">
             <div className="prose prose-lg max-w-none text-text-secondary whitespace-pre-wrap">
-              {text || 'Загрузка...'}
+              {loading ? 'Загрузка...' : text || 'Текст скоро появится'}
             </div>
           </div>
         </div>
