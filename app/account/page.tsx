@@ -8,6 +8,7 @@ import FloatingSupport from '@/components/FloatingSupport';
 import ProductCard from '@/components/ProductCard';
 import Dashboard from '@/components/Dashboard';
 import SettingsPanel from '@/components/SettingsPanel';
+import UsersPanel from '@/components/UsersPanel';
 import { formatPrice } from '@/lib/utils';
 
 export default function Account() {
@@ -111,6 +112,14 @@ export default function Account() {
                     Админ-панель
                   </button>
                   <button
+                    onClick={() => setActiveTab('users')}
+                    className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
+                      activeTab === 'users' ? 'bg-accent-olive text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    Пользователи
+                  </button>
+                  <button
                     onClick={() => setActiveTab('settings')}
                     className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
                       activeTab === 'settings' ? 'bg-accent-olive text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -161,6 +170,10 @@ export default function Account() {
                 <div>
                   <Dashboard />
                 </div>
+              )}
+
+              {activeTab === 'users' && user.role === 'admin' && (
+                <UsersPanel />
               )}
 
               {activeTab === 'settings' && user.role === 'admin' && (

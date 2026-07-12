@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { isAdmin } from '@/lib/auth';
 
-// GET - публичный доступ (без токенов)
+// GET - публичный доступ
 export async function GET() {
   try {
     const { data: settings, error } = await supabaseAdmin
@@ -11,14 +10,16 @@ export async function GET() {
       .single();
 
     if (error) {
+      console.error('Settings GET error:', error);
       return NextResponse.json({ error: 'Ошибка при загрузке настроек' }, { status: 500 });
     }
 
     // Исключаем токены из публичного ответа
-    const { telegram_bot_token, ...publicSettings } = settings;
+    const { telegram_bot_token, ...publicSettings } = settings || {};
 
-    return NextResponse.json(publicSettings);
+    return NextResponse.json(publicSettings || {});
   } catch (error) {
+    console.error('Settings GET exception:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -26,27 +27,56 @@ export async function GET() {
 // PATCH - только для админов
 export async function PATCH(request: NextRequest) {
   try {
-    const userHeader = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role');
     
-    if (!isAdmin({ id: userHeader, role: userRole })) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userRole !== 'admin') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     const body = await request.json();
 
+    // Обновляем только разрешённые поля
+    const allowedFields = [
+      'hero_title',
+      'hero_subtitle',
+      'about_text',
+      'delivery_text',
+      'return_text',
+      'privacy_text',
+      'terms_text',
+      'support_telegram',
+      'contact_phone',
+      'contact_email',
+      'inn_ogrn',
+      'sbp_qr_url',
+      'pickup_address',
+    ];
+
+    const updateData: Record<string, any> = {};
+    Object.keys(body).forEach(key => {
+      if (allowedFields.includes(key)) {
+        updateData[key] = body[key];
+      }
+    });
+
     const { data, error } = await supabaseAdmin
       .from('settings')
-      .update(body)
+      .update(updateData)
+      .eq('id', 1) // Предполагается одна запись настроек
       .select()
       .single();
 
     if (error) {
-      return NextResponse.json({ error: 'Ошибка при обновлении настроек' }, { status: 500 });
+      console.error('Settings PATCH error:', error);
+      return NextResponse.json({ 
+        error: 'Ошибка при обновлении настроек',
+        details: error.message 
+      }, { status: 500 });
     }
 
     return NextResponse.json({ settings: data });
   } catch (error) {
+    console.error('Settings PATCH exception:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

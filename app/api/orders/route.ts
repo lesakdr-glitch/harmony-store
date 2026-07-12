@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { isAdmin } from '@/lib/auth';
 import { sendTelegramNotification, formatOrderMessage } from '@/lib/telegram';
 
 // POST - публичный доступ для создания заказа
@@ -50,11 +49,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Для админов - все заказы
-    const userHeader = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role');
     
-    if (!isAdmin({ id: userHeader, role: userRole })) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userRole !== 'admin') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     const { data: orders, error } = await supabaseAdmin
@@ -75,11 +73,10 @@ export async function GET(request: NextRequest) {
 // PATCH - только для админов
 export async function PATCH(request: NextRequest) {
   try {
-    const userHeader = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role');
     
-    if (!isAdmin({ id: userHeader, role: userRole })) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userRole !== 'admin') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     const body = await request.json();

@@ -17,9 +17,13 @@ export default function Navbar() {
     const user = localStorage.getItem('user');
     setIsAuthenticated(!!user);
 
-    const darkMode = localStorage.getItem('darkMode') === 'true';
+    const darkMode = localStorage.getItem('theme') === 'dark';
     setIsDark(darkMode);
-    if (darkMode) document.documentElement.classList.add('dark');
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
 
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -41,8 +45,12 @@ export default function Navbar() {
   const toggleTheme = () => {
     const newDark = !isDark;
     setIsDark(newDark);
-    localStorage.setItem('darkMode', String(newDark));
-    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', newDark ? 'dark' : 'light');
+    if (newDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   return (

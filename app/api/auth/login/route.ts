@@ -7,12 +7,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password } = body;
 
-    // Валидация
     if (!email || !password) {
       return NextResponse.json({ error: 'Заполните все поля' }, { status: 400 });
     }
 
-    // Поиск пользователя
     const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('*')
@@ -23,17 +21,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 });
     }
 
-    // Проверка пароля
     const isValid = await verifyPassword(password, user.password_hash);
     if (!isValid) {
       return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 });
     }
 
-    // Возврат пользователя без пароля
-    const { password_hash, ...userWithoutPassword } = user;
+    // Возвращаем пользователя без пароля
+    const { password_hash, ...userData } = user;
 
-    return NextResponse.json({ success: true, user: userWithoutPassword });
+    return NextResponse.json({ 
+      success: true, 
+      user: userData
+    });
   } catch (error) {
+    console.error('Login error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

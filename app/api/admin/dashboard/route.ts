@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { isAdmin } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const userHeader = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role');
     
-    if (!isAdmin({ id: userHeader, role: userRole })) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userRole !== 'admin') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     // Заказы за сегодня
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayISO = today.toISOString();
+
     const { data: todayOrders } = await supabaseAdmin
       .from('orders')
       .select('total_price')
-      .gte('created_at', today);
+      .gte('created_at', todayISO);
 
     const ordersToday = todayOrders?.length || 0;
     const revenueToday = todayOrders?.reduce((sum, order) => sum + (order.total_price || 0), 0) || 0;
@@ -34,24 +35,32 @@ export async function GET(request: NextRequest) {
     // График выручки за 30 дней
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
     
-    const { data: chartData } = await supabaseAdmin
+    const { data: recentOrders } = await supabaseAdmin
       .from('orders')
       .select('created_at, total_price')
       .gte('created_at', thirtyDaysAgo.toISOString())
       .order('created_at', { ascending: true });
 
-    const chartByDate = chartData?.reduce((acc: any, order: any) => {
-      const date = new Date(order.created_at).toLocaleDateString('ru-RU');
-      if (!acc[date]) acc[date] = { date, revenue: 0 };
-      acc[date].revenue += order.total_price;
-      return acc;
-    }, {}) || {};
+    // Группировка по дням
+    const chartByDate: Record<string, { date: string; revenue: number }> = {};
+    
+    recentOrders?.forEach((order: any) => {
+      const date = new Date(order.created_at).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+      });
+      if (!chartByDate[date]) {
+        chartByDate[date] = { date, revenue: 0 };
+      }
+      chartByDate[date].revenue += order.total_price || 0;
+    });
 
-    const chartDataArray = Object.values(chartByDate);
+    const chartData = Object.values(chartByDate);
 
-    // Последние заказы
-    const { data: recentOrders } = await supabaseAdmin
+    // Последние 10 заказов
+    const { data: latestOrders } = await supabaseAdmin
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false })
@@ -62,10 +71,11 @@ export async function GET(request: NextRequest) {
       revenueToday,
       totalOrders: totalOrders || 0,
       totalProducts: totalProducts || 0,
-      chartData: chartDataArray,
-      recentOrders,
+      chartData,
+      recentOrders: latestOrders || [],
     });
   } catch (error) {
+    console.error('Dashboard error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

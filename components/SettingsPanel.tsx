@@ -68,22 +68,31 @@ export default function SettingsPanel() {
     setSaving(true);
     setMessage('');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    if (user.role !== 'admin') {
+      setMessage('❌ Доступ запрещён');
+      setSaving(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/settings', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': user.id || '',
-          'x-user-role': user.role || '',
+          'x-user-role': user.role,
         },
         body: JSON.stringify(form),
       });
+
       if (res.ok) {
         setMessage('✅ Сохранено');
       } else {
-        setMessage('❌ Ошибка сохранения');
+        const data = await res.json();
+        setMessage(`❌ ${data.error || 'Ошибка сохранения'}`);
       }
-    } catch {
+    } catch (error) {
+      console.error('Save error:', error);
       setMessage('❌ Ошибка сервера');
     } finally {
       setSaving(false);

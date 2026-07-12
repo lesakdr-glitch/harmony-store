@@ -19,16 +19,19 @@ export default function Dashboard() {
       if (!user.id || user.role !== 'admin') return;
 
       try {
-        // Статистика
         const statsRes = await fetch('/api/admin/dashboard', {
           headers: { 
-            'x-user-id': user.id,
             'x-user-role': user.role
           },
         });
         const statsData = await statsRes.json();
-        if (statsData) {
-          setStats(statsData);
+        if (statsData && !statsData.error) {
+          setStats({
+            ordersToday: statsData.ordersToday || 0,
+            revenueToday: statsData.revenueToday || 0,
+            totalOrders: statsData.totalOrders || 0,
+            totalProducts: statsData.totalProducts || 0,
+          });
           setChartData(statsData.chartData || []);
           setRecentOrders(statsData.recentOrders || []);
         }

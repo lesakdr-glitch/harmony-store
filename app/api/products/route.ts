@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { isAdmin } from '@/lib/auth';
 
 // GET - публичный доступ
 export async function GET(request: NextRequest) {
@@ -75,11 +74,10 @@ export async function GET(request: NextRequest) {
 // POST - только для админов
 export async function POST(request: NextRequest) {
   try {
-    const userHeader = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role');
     
-    if (!isAdmin({ id: userHeader, role: userRole })) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userRole !== 'admin') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -102,11 +100,10 @@ export async function POST(request: NextRequest) {
 // PATCH - только для админов
 export async function PATCH(request: NextRequest) {
   try {
-    const userHeader = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role');
     
-    if (!isAdmin({ id: userHeader, role: userRole })) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userRole !== 'admin') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -132,11 +129,10 @@ export async function PATCH(request: NextRequest) {
 // DELETE - только для админов
 export async function DELETE(request: NextRequest) {
   try {
-    const userHeader = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role');
     
-    if (!isAdmin({ id: userHeader, role: userRole })) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userRole !== 'admin') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

@@ -10,19 +10,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#FAF7F2',
-        card: '#FFFFFF',
+        // CSS-переменные — автоматически меняются при .dark на <html>
+        background: 'var(--background)',
+        card: 'var(--card)',
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        input: 'var(--input)',
+        border: 'var(--border)',
+        // Акценты статичные
         'accent-brown': '#8B7355',
         'accent-olive': '#6B8E4E',
-        'text-primary': '#2D2D2D',
-        'text-secondary': '#5D5D5D',
       },
       fontFamily: {
         raleway: ['var(--font-raleway)', 'sans-serif'],
         inter: ['var(--font-inter)', 'sans-serif'],
       },
       borderRadius: {
-        'xl': '16px',
+        xl: '16px',
         '2xl': '20px',
       },
     },

@@ -2,34 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Светлая тема (по умолчанию) ─── */
 :root {
   --background: #FAF7F2;
   --card: #FFFFFF;
+  --input: #FFFFFF;
+  --border: #E5E0D8;
   --accent-brown: #8B7355;
   --accent-olive: #6B8E4E;
   --text-primary: #2D2D2D;
   --text-secondary: #5D5D5D;
 }
 
-.dark {
-  --background: #1a1a1a;
-  --card: #2d2d2d;
-  --text-primary: #f5f5f5;
-  --text-secondary: #a0a0a0;
+/* ─── Тёмная тема ─── */
+html.dark {
+  --background: #1A1A1A;
+  --card: #2D2D2D;
+  --input: #3D3D3D;
+  --border: #444444;
+  --text-primary: #F5F5F7;
+  --text-secondary: #A0A0A0;
 }
 
+/* ─── Base ─── */
 body {
   background-color: var(--background);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Плавные переходы */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+/* ─── Плавные переходы только для цвета/фона ─── */
+*,
+*::before,
+*::after {
+  transition-property: background-color, color, border-color, box-shadow;
+  transition-duration: 250ms;
+  transition-timing-function: ease;
 }
 
-/* Кастомный скроллбар */
+/* ─── Инпуты и textarea в тёмной теме ─── */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: var(--input);
+  color: var(--text-primary);
+  border-color: var(--border);
+  color-scheme: dark;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+/* ─── Скроллбар ─── */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -46,4 +71,17 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-olive);
+}
+
+/* ─── Recharts в тёмной теме ─── */
+html.dark .recharts-cartesian-grid line {
+  stroke: #444;
+}
+html.dark .recharts-text {
+  fill: var(--text-secondary);
+}
+html.dark .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
 }
